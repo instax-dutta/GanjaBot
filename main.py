@@ -11,8 +11,6 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-
-
 # Dictionary mapping user IDs to their specific message arrays
 user_messages = {
     '885008600135770122': [
@@ -102,10 +100,6 @@ async def on_voice_state_update(member, before, after):
             print(f"No custom messages found for {member.name} ({member.id}).")
     else:
         print(f"{member.name} didn't join the monitored voice channel or left it.")
-
-
-
-
 
 @bot.event
 async def on_ready():

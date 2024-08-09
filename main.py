@@ -59,11 +59,8 @@ async def on_voice_state_update(member, before, after):
     print(f"Voice state update detected for {member.name} ({member.id})")
     print(f"Before Channel: {before.channel}, After Channel: {after.channel}")
     
-    # Debugging: Verify VC_ID and CHANNEL_ID
-    print(f"Monitored Voice Channel ID: {VC_ID}, Text Channel ID: {CHANNEL_ID}")
-
-    # Check if the member joined a voice channel and if it's the monitored VC
-    if after.channel and after.channel.id == VC_ID:
+    # Check if the member just joined the monitored voice channel
+    if before.channel is None and after.channel and after.channel.id == VC_ID:
         print(f"{member.name} joined the monitored voice channel: {after.channel.name}")
         
         # Convert member.id to string to match dictionary keys
@@ -100,6 +97,7 @@ async def on_voice_state_update(member, before, after):
             print(f"No custom messages found for {member.name} ({member.id}).")
     else:
         print(f"{member.name} didn't join the monitored voice channel or left it.")
+
 
 @bot.event
 async def on_ready():
@@ -162,4 +160,4 @@ async def on_command_error(ctx, error):
     await ctx.send(f"Arre! Kuch gadbad ho gaya: {str(error)}")
     print(f"Error: {str(error)}")
 
-bot.run('BOT_TOKEN')
+bot.run('Bot_Token')

@@ -143,6 +143,78 @@ async def on_voice_state_update(member, before, after):
     else:
         print(f"{member.name} didn't join the monitored voice channel or left it.")
 
+# List of masculine and feminine Ganja and Nashedi-themed nicknames
+male_nicknames = [
+    "Maal Ka Baadshah", "Nashe Ka Sardar", "Chillam King", "Weed Baba",
+    "Hukkah Hero", "Trippy Tantrik", "Charsi Chela", "Nashedi Raja", 
+    "Ganja Guru", "Bhaang Ke Maharaj", "Rolling Rishi", "Highness",
+    "Blunt Bhai", "Chillum Chacha", "Stoned Saint", "Bhangra Boss",
+    "Moksha Master", "Cannabis Captain", "Trip King", "Dank Dealer",
+    "Smokey Sadhu", "Weed Wizard", "Herb Hero", "Joint Joker",
+    "Puff Daddy", "High Maharaj", "Sativa Sultan", "Kush Kaptain",
+    "Bhaang Baba", "Ganja Gandharva", "Nasha Nayak", "Hash Hunk",
+    "Blaze Bhai", "Grass Guru", "Stoned Shikari", "Moksha Mama"
+]
+
+female_nicknames = [
+    "Weed Wali Amma", "Mary Jane Maharani", "Rolling Rani", "Chillum Chachi",
+    "Highness Queen", "Cannabis Rani", "Bhaang Ki Rani", "Ganja Ki Devi",
+    "Trippy Tripti", "Charsi Chudail", "Blunt Babe", "Stoned Sundari",
+    "Nashili Nisha", "Tripti Tantrika", "Moksha Maharani", "Ganja Gudiya",
+    "Weed Wali", "Blaze Bhabhi", "Kush Kumari", "Herb Hottie",
+    "Sativa Sultana", "Puff Princess", "Chillam Chudi", "Nashe Wali",
+    "Dank Devi", "Moksha Mahi", "Hash Heer", "Ganja Gudiya", 
+    "Stoned Shakti", "High Hazira", "Nasha Nandini", "Ganja GuruMa"
+]
+
+# Dictionary to keep track of when users were last assigned a nickname
+nickname_history = {}
+
+# Time limit between nickname changes (in seconds)
+NICKNAME_COOLDOWN = 1800  # 1 hour
+
+VC_ID = 1080539142804475984  # Replace with your voice channel ID
+FEMALE_ROLE_NAME = "female"  # Replace with your role name for female users
+
+@bot.event
+async def on_voice_state_update(member, before, after):
+    # Only proceed if the user joined the specific voice channel
+    if after.channel and after.channel.id == VC_ID:
+        now = datetime.datetime.now()
+        member_id_str = str(member.id)
+        
+        # Check if the user is in the cooldown period
+        if member_id_str in nickname_history:
+            last_change_time = nickname_history[member_id_str]
+            time_since_last_change = (now - last_change_time).total_seconds()
+            if time_since_last_change < NICKNAME_COOLDOWN:
+                print(f"Nickname change on cooldown for {member.name}.")
+                return  # Skip nickname change
+        
+        # Determine if the user has the "female" role
+        has_female_role = any(role.name == FEMALE_ROLE_NAME for role in member.roles)
+        
+        # Choose a random nickname based on the user's gender
+        if has_female_role:
+            chosen_nickname = random.choice(female_nicknames)
+        else:
+            chosen_nickname = random.choice(male_nicknames)
+        
+        # Update the user's nickname
+        try:
+            await member.edit(nick=chosen_nickname)
+            print(f"Changed nickname of {member.name} to {chosen_nickname}")
+            
+            # Record the time of this nickname change
+            nickname_history[member_id_str] = now
+        except Exception as e:
+            print(f"Failed to change nickname of {member.name}: {e}")
+
+        # Shuffle the appropriate nickname list to avoid frequent repetition
+        if has_female_role:
+            random.shuffle(female_nicknames)
+        else:
+            random.shuffle(male_nicknames)
 
 @bot.event
 async def on_ready():
@@ -205,4 +277,4 @@ async def on_command_error(ctx, error):
     await ctx.send(f"Arre! Kuch gadbad ho gaya: {str(error)}")
     print(f"Error: {str(error)}")
 
-bot.run('Bot_Token')
+bot.run('bot_token')

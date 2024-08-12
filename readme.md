@@ -5,6 +5,8 @@ Ganja Bot is a fun Discord bot that responds with hilarious and Indian-themed me
 ## Features
 
 - **Custom Messages**: Sends messages in a specified text channel when specific users join a common voice channel.
+  - **Rate Limiting**: Messages are sent only once per hour per monitored user to prevent flooding. Each user is limited to 8 messages per 24 hours.
+- **Gender-Based Nickname Assignment**: Automatically changes the nickname of users who join the specified voice channel to a Ganja and Nashedi-themed nickname based on their gender. Users with the "female" role are assigned feminine nicknames, while others receive masculine ones.
 - **Fun Commands**:
   - `!chakna`: Suggests different types of snacks.
   - `!nashe`: Shares funny trip-related thoughts.
@@ -30,6 +32,7 @@ Ganja Bot is a fun Discord bot that responds with hilarious and Indian-themed me
 3. **Configure the Bot**:
    - Replace `YOUR_BOT_TOKEN` in `main.py` with your Discord bot token.
    - Replace `CHANNEL_ID` and `VC_ID` with the IDs of your text and voice channels.
+   - Set `FEMALE_ROLE_NAME` to the name of the role used to identify female users on your server.
 
 4. **Run the Bot**:
 

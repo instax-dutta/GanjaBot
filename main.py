@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 import random
+import datetime
+
 
 intents = discord.Intents.default()
 intents.voice_states = True
@@ -53,6 +55,19 @@ user_messages = {
 CHANNEL_ID = 1053665970264219680 # Replace with your text channel ID
 VC_ID = 1080539142804475984  # Replace with your voice channel ID
 
+# Dictionary to store the last time a message was sent for each user
+last_message_time = {}
+
+# Dictionary to store message timestamps within the last 24 hours for each user
+message_timestamps = {}
+
+# Cooldown period in seconds (1 hour = 3600 seconds)
+COOLDOWN_PERIOD = 3600
+
+# Limit of messages per user per 24 hours
+DAILY_MESSAGE_LIMIT = 8
+TIME_WINDOW = 86400  # 24 hours in seconds
+
 @bot.event
 async def on_voice_state_update(member, before, after):
     # Debug print to see if the event is being triggered
@@ -65,6 +80,36 @@ async def on_voice_state_update(member, before, after):
         
         # Convert member.id to string to match dictionary keys
         member_id_str = str(member.id)
+        
+        current_time = datetime.datetime.now()
+        
+        # Check if the user is in the cooldown period
+        if member_id_str in last_message_time:
+            last_sent_time = last_message_time[member_id_str]
+            time_since_last_message = (current_time - last_sent_time).total_seconds()
+            
+            if time_since_last_message < COOLDOWN_PERIOD:
+                print(f"Cooldown active for {member.name}. Last message sent {time_since_last_message} seconds ago.")
+                return  # Exit the function if still in cooldown period
+        
+        # Initialize the message timestamps list if not already done
+        if member_id_str not in message_timestamps:
+            message_timestamps[member_id_str] = []
+        
+        # Filter out messages that are older than 24 hours
+        message_timestamps[member_id_str] = [
+            timestamp for timestamp in message_timestamps[member_id_str]
+            if (current_time - timestamp).total_seconds() <= TIME_WINDOW
+        ]
+        
+        # Check if the user has reached the daily message limit
+        if len(message_timestamps[member_id_str]) >= DAILY_MESSAGE_LIMIT:
+            print(f"Daily message limit reached for {member.name}.")
+            return  # Exit the function if the daily limit has been reached
+        
+        # Update the last message time and add the current time to the timestamps list
+        last_message_time[member_id_str] = current_time
+        message_timestamps[member_id_str].append(current_time)
         
         if member_id_str in user_messages:
             channel = bot.get_channel(CHANNEL_ID)
